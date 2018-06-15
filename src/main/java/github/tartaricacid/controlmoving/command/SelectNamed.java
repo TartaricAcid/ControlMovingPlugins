@@ -10,9 +10,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -23,7 +21,6 @@ import static github.tartaricacid.controlmoving.ControlMoving.dataMap;
 import static github.tartaricacid.controlmoving.ControlMoving.tmpSelectMap;
 
 // 领地命名和优先级判定
-// TODO：权限判定
 public class SelectNamed implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) {
@@ -49,15 +46,19 @@ public class SelectNamed implements CommandExecutor {
                     Vector3i pos2 = (Vector3i) range.get("pos2");
                     String world = (String) range.get("world");
 
+                    // 圈地范围过小警告，考虑原版最大玩家可以延伸
+                    Vector3i posTmp = pos1.sub(pos2).abs();
+                    int min = (posTmp.getX() < posTmp.getY()) ? Math.min(posTmp.getX(), posTmp.getZ()) : Math.min(posTmp.getY(), posTmp.getZ());
+                    if (min < 5) {
+                        player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&lControl Moving&r&l] &c&l范围过小! x、y、z最小不能小于5"));
+                        return CommandResult.empty();
+                    }
+
                     // 存数据参数
                     dataMap.put(name, new DataMapSelect(pos1, pos2, world, priority));
 
                     // 发送信息
-                    // TODO：自定义语言样式
-                    player.sendMessage(Text.builder("成功执行命名")
-                            .color(TextColors.GREEN)
-                            .style(TextStyles.BOLD)
-                            .build());
+                    player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&lControl Moving&r&l] &e&l圈地成功！"));
 
                     // 进行一次文件存储，防止关服数据丢失
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();  // Json 进行一次格式化，看起来美观
@@ -76,12 +77,8 @@ public class SelectNamed implements CommandExecutor {
                     }
                 }
                 // 否则提示，没有圈地
-                // TODO：自定义语言样式
                 else {
-                    player.sendMessage(Text.builder("请先圈地！")
-                            .color(TextColors.RED)
-                            .style(TextStyles.BOLD)
-                            .build());
+                    player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&lControl Moving&r&l] &c&l请先圈地！"));
                 }
             }
         }

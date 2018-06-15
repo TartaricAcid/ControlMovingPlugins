@@ -8,11 +8,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
-
-import java.util.HashMap;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 // 列出所有圈地的命令
 public class SelectList implements CommandExecutor {
@@ -24,10 +20,7 @@ public class SelectList implements CommandExecutor {
             Player player = (Player) src;
 
             // 消息输出主题部分
-            // TODO：增加自定义语言和样式
-            player.sendMessage(Text.builder("目前圈地情况：")
-                    .style(TextStyles.BOLD)
-                    .build());
+            player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&lControl Moving&r&l] &e&l目前圈地情况"));
 
             // 循环打印出领地情况
             for (String name : ControlMoving.dataMap.keySet()) {
@@ -38,13 +31,10 @@ public class SelectList implements CommandExecutor {
                 int priority = range.getPriority();
                 String world = range.getWorld();
 
-                player.sendMessage(Text.builder(String.format("%s: [%d] [%s] (%d, %d, %d) - (%d, %d, %d)",
+                player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(String.format("&r&l%s: &6&l[%d] &b&l[%s] &e&l(%d,%d,%d)-(%d,%d,%d)",
                         name, priority, world,
                         pos1.getX(), pos1.getY(), pos1.getZ(),
-                        pos2.getX(), pos2.getY(), pos2.getZ()))
-                        .color(TextColors.GOLD)
-                        .style(TextStyles.BOLD)
-                        .build());
+                        pos2.getX(), pos2.getY(), pos2.getZ())));
             }
 
             // 提示：指令成功
