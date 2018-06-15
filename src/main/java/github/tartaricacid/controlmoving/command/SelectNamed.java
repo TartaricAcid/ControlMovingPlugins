@@ -2,6 +2,7 @@ package github.tartaricacid.controlmoving.command;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import github.tartaricacid.controlmoving.ControlMoving;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -11,9 +12,9 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 import static github.tartaricacid.controlmoving.ControlMoving.dataMap;
@@ -57,11 +58,12 @@ public class SelectNamed implements CommandExecutor {
                             .build());
 
                     // 进行一次文件存储，防止关服数据丢失
-                    // TODO：以后应该使用 Sponge 官方提供的配置 api。但是目前不会用，总是会获得空对象
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();  // Json 进行一次格式化，看起来美观
-                    File file = new File("storage.json");
+                    Path storageFile = ControlMoving.INSTANCE.getConfigDirectory().resolve("storage.json");
+
+                    // 不用 sponge api，因为那个 api 不识别 Vector3i 数据
                     try {
-                        OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+                        OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(storageFile.toFile()), "UTF-8");
                         out.write(gson.toJson(dataMap));
                         out.close();
 
