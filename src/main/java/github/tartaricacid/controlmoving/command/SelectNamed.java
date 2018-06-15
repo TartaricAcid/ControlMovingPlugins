@@ -1,8 +1,10 @@
 package github.tartaricacid.controlmoving.command;
 
+import com.flowpowered.math.vector.Vector3i;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import github.tartaricacid.controlmoving.ControlMoving;
+import github.tartaricacid.controlmoving.data.DataMapSelect;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -42,13 +44,13 @@ public class SelectNamed implements CommandExecutor {
 
                 // 先判断画的区域是否为空
                 if (range.containsKey("pos1") && range.containsKey("pos2") && range.containsKey("world")) {
-                    // 存优先级参数
-                    range.put("priority", priority);
+                    // 数据参数
+                    Vector3i pos1 = (Vector3i) range.get("pos1");
+                    Vector3i pos2 = (Vector3i) range.get("pos2");
+                    String world = (String) range.get("world");
 
                     // 存数据参数
-                    // 注意这一块要存储 range 的副本，否则二次执行会指向同一个数据
-                    // 具体原因请细细分析 Java Map 的实现机理
-                    dataMap.put(name, (HashMap) range.clone());
+                    dataMap.put(name, new DataMapSelect(pos1, pos2, world, priority));
 
                     // 发送信息
                     // TODO：自定义语言样式

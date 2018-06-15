@@ -59,7 +59,7 @@ public class ControlMoving {
 
     // 存储服务器圈地信息的变量
     // TODO：开服时应当从 storage.json 文件中进行读取
-    public static HashMap<String, HashMap> dataMap = new HashMap<>();
+    public static HashMap<String, DataMapSelect> dataMap = new HashMap<>();
 
     public static ControlMoving INSTANCE;
 
@@ -139,8 +139,7 @@ public class ControlMoving {
         Gson gson = new Gson();
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(storageFile.toFile()), "UTF-8"));
-            HashMap<String, DataMapSelect.name> map = new HashMap<>();
-            dataMap = (HashMap<String, HashMap>) gson.fromJson(in, map.getClass());
+            dataMap = gson.fromJson(in, dataMap.getClass());
             in.close();
         } catch (Exception e) {
             e.printStackTrace();

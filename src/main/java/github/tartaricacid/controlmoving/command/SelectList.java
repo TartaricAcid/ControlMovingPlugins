@@ -2,6 +2,7 @@ package github.tartaricacid.controlmoving.command;
 
 import com.flowpowered.math.vector.Vector3i;
 import github.tartaricacid.controlmoving.ControlMoving;
+import github.tartaricacid.controlmoving.data.DataMapSelect;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -30,12 +31,12 @@ public class SelectList implements CommandExecutor {
 
             // 循环打印出领地情况
             for (String name : ControlMoving.dataMap.keySet()) {
-                HashMap range = ControlMoving.dataMap.get(name);
+                DataMapSelect range = ControlMoving.dataMap.get(name);
 
-                Vector3i pos1 = (Vector3i) range.get("pos1");
-                Vector3i pos2 = (Vector3i) range.get("pos2");
-                int priority = (Integer) range.get("priority");
-                String world = (String) range.get("world");
+                Vector3i pos1 = range.getPos1();
+                Vector3i pos2 = range.getPos2();
+                int priority = range.getPriority();
+                String world = range.getWorld();
 
                 player.sendMessage(Text.builder(String.format("%s: [%d] [%s] (%d, %d, %d) - (%d, %d, %d)",
                         name, priority, world,
