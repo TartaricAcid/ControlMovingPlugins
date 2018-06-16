@@ -9,6 +9,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
+import org.spongepowered.api.text.title.Title;
 
 // 禁止玩家移动的事件
 public class RefuseMoving {
@@ -47,9 +48,9 @@ public class RefuseMoving {
                 Vector3d position = player.getPosition();
 
                 // 开始判定范围
-                if (((position.getFloorX() < pos1.getX() && position.getFloorX() > pos2.getX()) || (position.getFloorX() > pos1.getX() && position.getFloorX() < pos2.getX())) &&
-                        ((position.getFloorY() < pos1.getY() && position.getFloorY() > pos2.getY()) || (position.getFloorY() > pos1.getY() && position.getFloorY() < pos2.getY())) &&
-                        ((position.getFloorZ() < pos1.getZ() && position.getFloorZ() > pos2.getZ()) || (position.getFloorZ() > pos1.getZ() && position.getFloorZ() < pos2.getZ())) &&
+                if (((position.getFloorX() <= pos1.getX() && position.getFloorX() >= pos2.getX()) || (position.getFloorX() >= pos1.getX() && position.getFloorX() <= pos2.getX())) &&
+                        ((position.getFloorY() <= pos1.getY() && position.getFloorY() >= pos2.getY()) || (position.getFloorY() >= pos1.getY() && position.getFloorY() <= pos2.getY())) &&
+                        ((position.getFloorZ() <= pos1.getZ() && position.getFloorZ() >= pos2.getZ()) || (position.getFloorZ() >= pos1.getZ() && position.getFloorZ() <= pos2.getZ())) &&
                         player.getWorld().getName().equals(world)) {
 
                     // 求所选区域中点
@@ -62,6 +63,11 @@ public class RefuseMoving {
                     double k = Math.sqrt(x * x + z * z);
                     x = x / k;
                     z = z / k;
+
+                    player.sendTitle(Title.builder()
+                            .title(ControlMoving.INSTANCE.getTextTitle())
+                            .subtitle(ControlMoving.INSTANCE.getTextSubtitle())
+                            .build());
 
                     // 将单位向量应用为玩家速度
                     player.offer(player.getOrCreate(VelocityData.class).get().velocity().set(new Vector3d(x, 0, z)));

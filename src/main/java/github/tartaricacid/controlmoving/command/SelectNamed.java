@@ -50,7 +50,7 @@ public class SelectNamed implements CommandExecutor {
                     Vector3i posTmp = pos1.sub(pos2).abs();
                     int min = (posTmp.getX() < posTmp.getY()) ? Math.min(posTmp.getX(), posTmp.getZ()) : Math.min(posTmp.getY(), posTmp.getZ());
                     if (min < 5) {
-                        player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&lControl Moving&r&l] &c&l范围过小! x、y、z最小不能小于5"));
+                        player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&l保护墙插件&r&l] &c&l范围过小! x、y、z最小不能小于5"));
                         return CommandResult.empty();
                     }
 
@@ -58,7 +58,7 @@ public class SelectNamed implements CommandExecutor {
                     dataMap.put(name, new DataMapSelect(pos1, pos2, world, priority));
 
                     // 发送信息
-                    player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&lControl Moving&r&l] &e&l圈地成功！"));
+                    player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&l保护墙插件&r&l] &e&l圈地成功！"));
 
                     // 进行一次文件存储，防止关服数据丢失
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();  // Json 进行一次格式化，看起来美观
@@ -78,7 +78,7 @@ public class SelectNamed implements CommandExecutor {
                 }
                 // 否则提示，没有圈地
                 else {
-                    player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&lControl Moving&r&l] &c&l请先圈地！"));
+                    player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&r&l[&b&l保护墙插件&r&l] &c&l请先圈地！"));
                 }
             }
         }

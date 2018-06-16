@@ -9,6 +9,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.text.title.Title;
 
 public class RefuseInteract {
     // 阻止玩家所有交互事件
@@ -36,14 +37,30 @@ public class RefuseInteract {
             Vector3i pos2 = range.getPos2();
             String world = range.getWorld();
 
+            // 考虑到玩家交互的距离可以延伸5格，故各个方向加5，防止边界问题
+            /* 貌似实现有点问题
+            Vector3i unitPos1 = pos1.sub(pos2).div(pos1.sub(pos2).length());
+            Vector3i unitPos2 = pos2.sub(pos1).div(pos2.sub(pos1).length());
+            pos1 = pos1.add(unitPos1.mul(5));
+            pos2 = pos2.add(unitPos2.mul(5));
+            */
+
             // 获取玩家坐标数据
             Vector3d position = player.getPosition();
 
             // 开始判定范围
-            if (((position.getFloorX() < pos1.getX() && position.getFloorX() > pos2.getX()) || (position.getFloorX() > pos1.getX() && position.getFloorX() < pos2.getX())) &&
-                    ((position.getFloorY() < pos1.getY() && position.getFloorY() > pos2.getY()) || (position.getFloorY() > pos1.getY() && position.getFloorY() < pos2.getY())) &&
-                    ((position.getFloorZ() < pos1.getZ() && position.getFloorZ() > pos2.getZ()) || (position.getFloorZ() > pos1.getZ() && position.getFloorZ() < pos2.getZ())) &&
+            if (((position.getFloorX() <= pos1.getX() && position.getFloorX() >= pos2.getX()) || (position.getFloorX() >= pos1.getX() && position.getFloorX() <= pos2.getX())) &&
+                    ((position.getFloorY() <= pos1.getY() && position.getFloorY() >= pos2.getY()) || (position.getFloorY() >= pos1.getY() && position.getFloorY() <= pos2.getY())) &&
+                    ((position.getFloorZ() <= pos1.getZ() && position.getFloorZ() >= pos2.getZ()) || (position.getFloorZ() >= pos1.getZ() && position.getFloorZ() <= pos2.getZ())) &&
                     player.getWorld().getName().equals(world)) {
+
+                // 发送警告
+                player.sendTitle(Title.builder()
+                        .title(ControlMoving.INSTANCE.getTextTitle())
+                        .subtitle(ControlMoving.INSTANCE.getTextSubtitle())
+                        .build());
+
+                // 取消事件
                 event.setCancelled(true);
             }
         }

@@ -3,6 +3,7 @@ package github.tartaricacid.controlmoving;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
+import github.tartaricacid.controlmoving.command.SelectDelete;
 import github.tartaricacid.controlmoving.command.SelectList;
 import github.tartaricacid.controlmoving.command.SelectNamed;
 import github.tartaricacid.controlmoving.data.DataMapSelect;
@@ -21,15 +22,18 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.util.TypeTokens;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,11 +59,13 @@ public class ControlMoving {
 
     // 存储玩家临时圈地范围的变量，重启后失效，故不存为文件
     public static HashMap<UUID, HashMap> tmpSelectMap = new HashMap<>();
-
     // 存储服务器圈地信息的变量
     public static HashMap<String, DataMapSelect> dataMap = new HashMap<>();
-
+    // 获取游戏实例
     public static ControlMoving INSTANCE;
+    // 存储警告信息
+    private Text textTitle = Text.of(TextColors.RED, TextStyles.BOLD, "警告");
+    private Text textSubtitle = Text.of(TextColors.GOLD, TextStyles.BOLD, "你目前没有权限进入此区域");
 
     // 配置文件加载
     @Listener
@@ -80,7 +86,6 @@ public class ControlMoving {
         Sponge.getEventManager().registerListeners(this, new RefuseInteract());
     }
 
-
     // 插件命令的注册
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
@@ -93,7 +98,6 @@ public class ControlMoving {
         logger.info(ANSI_GREEN + "+=============================+" + ANSI_RESET);
 
         // 命令注册部分
-        // TODO：自定义样式和语言
         CommandSpec selectNamed = CommandSpec.builder()
                 .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("name"))),
                         GenericArguments.onlyOne(GenericArguments.integer(Text.of("priority"))))
@@ -101,7 +105,12 @@ public class ControlMoving {
                 .executor(new SelectNamed())
                 .build();
 
-        // TODO：自定义样式和语言
+        CommandSpec selectDel = CommandSpec.builder()
+                .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("name"))))
+                .description(Text.of("删除圈地"))
+                .executor(new SelectDelete())
+                .build();
+
         CommandSpec selectList = CommandSpec.builder()
                 .description(Text.of("显示圈好的地皮列表"))
                 .executor(new SelectList())
@@ -112,10 +121,20 @@ public class ControlMoving {
                 .permission("control_moving.command.main")
                 .child(selectNamed, "name", "n")
                 .child(selectList, "list", "l")
+                .child(selectDel, "delete", "del", "d")
                 .build();
 
         // 指令注册
         Sponge.getCommandManager().register(this, commandMain, "control_moving", "cm");
+    }
+
+    // 重载配置操作
+    @Listener
+    public void reload(GameReloadEvent event) {
+        // 插件配置重载
+        configManagerSetup();
+        // 圈定范围重载
+        storageFileSetup();
     }
 
     private void configManagerSetup() {
@@ -124,12 +143,21 @@ public class ControlMoving {
         // 如果文件不存在，我们需要创建一个全新的默认配置文件
         if (!Files.exists(defaultConfig)) {
             ConfigurationNode rootNode = configManager.createEmptyNode(ConfigurationOptions.defaults());
-            // TODO：更详细的配置
-            ConfigurationNode targetNode = rootNode.getNode("modules", "blockCheats", "enabled").setValue(false);
-
             try {
+                rootNode.getNode("WaringTitleText").setValue(TypeTokens.TEXT_TOKEN, textTitle);
+                rootNode.getNode("WaringSubtitleText").setValue(TypeTokens.TEXT_TOKEN, textSubtitle);
                 configManager.save(rootNode);
-            } catch (IOException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // 否则，读取文件
+        else {
+            try {
+                ConfigurationNode rootNode = configManager.load();
+                textTitle = rootNode.getNode("WaringTitleText").getValue(TypeTokens.TEXT_TOKEN);
+                textSubtitle = rootNode.getNode("WaringSubtitleText").getValue(TypeTokens.TEXT_TOKEN);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -157,5 +185,13 @@ public class ControlMoving {
 
     public Path getConfigDirectory() {
         return configDir;
+    }
+
+    public Text getTextTitle() {
+        return textTitle;
+    }
+
+    public Text getTextSubtitle() {
+        return textSubtitle;
     }
 }
