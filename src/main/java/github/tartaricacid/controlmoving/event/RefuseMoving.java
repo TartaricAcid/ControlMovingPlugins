@@ -16,7 +16,7 @@ public class RefuseMoving {
     // 阻止玩家移动
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onPlayerMoving(MoveEntityEvent event) {
-        // 首先先判定是不是玩家
+        // 判定是不是玩家
         if (event.getTargetEntity() instanceof Player) {
             // 强制类型转换
             Player player = (Player) event.getTargetEntity();
@@ -64,10 +64,16 @@ public class RefuseMoving {
                     x = x / k;
                     z = z / k;
 
+                    // 警告提醒
                     player.sendTitle(Title.builder()
                             .title(ControlMoving.INSTANCE.getTextTitle())
                             .subtitle(ControlMoving.INSTANCE.getTextSubtitle())
                             .build());
+
+                    // 判定玩家是否骑乘，使用了 MCP 的方法
+                    if (((net.minecraft.entity.Entity) player).getRidingEntity() != null) {
+                        ((net.minecraft.entity.Entity) player).dismountRidingEntity();
+                    }
 
                     // 将单位向量应用为玩家速度
                     player.offer(player.getOrCreate(VelocityData.class).get().velocity().set(new Vector3d(x, 0, z)));
