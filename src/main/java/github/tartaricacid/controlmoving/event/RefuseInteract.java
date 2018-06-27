@@ -29,7 +29,7 @@ public class RefuseInteract {
             // 先判定玩家优先级权限
             int i = range.getPriority();
             if (player.hasPermission("control_moving.moving." + i)) {
-                return;
+                break;
             }
 
             // 取出里面的数据
